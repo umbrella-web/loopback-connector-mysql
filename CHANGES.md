@@ -1,3 +1,31 @@
+2015-01-15, Version 1.5.1
+=========================
+
+ * Fix the loop of models (Raymond Feng)
+
+ * Set ok default to false (Geoffroy Lesage)
+
+ * Fixed missing 'ok' (Geoffroy Lesage)
+
+ * Changed default type mapping (Geoffroy Lesage)
+
+ * Fixed isActual syntax to accept optional model arg (Geoffroy Lesage)
+
+ * Fixed isActual implemenation (Geoffroy Lesage)
+
+ * Inherit Schema From DataSource if not defined (Serkan Serttop)
+
+
+2015-01-09, Version 1.5.0
+=========================
+
+ * Use mysql.escape/escapeId() (Raymond Feng)
+
+ * Fix bad CLA URL in CONTRIBUTING.md (Ryan Graham)
+
+ * (cherry picked from commit a6d31e8) (yogesh)
+
+
 2014-12-05, Version 1.4.9
 =========================
 
