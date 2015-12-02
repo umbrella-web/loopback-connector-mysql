@@ -2,6 +2,19 @@ var should = require('./init.js');
 
 var Post, PostWithStringId, PostWithUniqueTitle, db;
 
+// Mock up mongodb ObjectID
+function ObjectID(id) {
+  if (!(this instanceof ObjectID)) {
+    return new ObjectID(id);
+  }
+  this.id1 = id.substring(0, 2);
+  this.id2 = id.substring(2);
+}
+
+ObjectID.prototype.toJSON = function() {
+  return this.id1 + this.id2;
+};
+
 describe('mysql', function () {
 
   before(function (done) {
@@ -12,7 +25,8 @@ describe('mysql', function () {
       content: { type: String },
       comments: [String],
       history: Object,
-      stars: Number
+      stars: Number,
+      userId: ObjectID
     });
 
     PostWithStringId = db.define('PostWithStringId', {
@@ -44,11 +58,11 @@ describe('mysql', function () {
 
   it('should allow array or object', function (done) {
     Post.create({title: 'a', content: 'AAA', comments: ['1', '2'],
-      history: {a: 1, b: 'b'}}, function (err, post) {
+      history: {a: 1, b: 'b'}}, function(err, post) {
 
       should.not.exist(err);
 
-      Post.findById(post.id, function (err, p) {
+      Post.findById(post.id, function(err, p) {
         p.id.should.be.equal(post.id);
 
         p.content.should.be.equal(post.content);
@@ -59,7 +73,24 @@ describe('mysql', function () {
         done();
       });
     });
+  });
 
+  it('should allow ObjectID', function(done) {
+    var uid = new ObjectID('123');
+    Post.create({title: 'a', content: 'AAA', userId: uid},
+      function(err, post) {
+
+        should.not.exist(err);
+
+        Post.findById(post.id, function(err, p) {
+          p.id.should.be.equal(post.id);
+
+          p.content.should.be.equal(post.content);
+          p.title.should.be.equal('a');
+          p.userId.should.eql(uid);
+          done();
+        });
+      });
   });
 
   it('updateOrCreate should update the instance', function (done) {
@@ -197,7 +228,7 @@ describe('mysql', function () {
         posts.should.have.lengthOf(1);
         post = posts[0];
         post.should.have.property('title', 'b');
-        post.should.not.have.property('content');
+        post.should.have.property('content', undefined);
         should.not.exist(post.id);
 
         done();
@@ -462,6 +493,190 @@ describe('mysql', function () {
       PostWithUniqueTitle.create(data, function (err, post) {
         should.exist(err);
         done();
+      });
+    });
+  });
+
+  context('regexp operator', function() {
+    beforeEach(function deleteExistingTestFixtures(done) {
+      Post.destroyAll(done);
+    });
+    beforeEach(function createTestFixtures(done) {
+      Post.create([
+        {title: 'a', content: 'AAA'},
+        {title: 'b', content: 'BBB'}
+      ], done);
+    });
+    after(function deleteTestFixtures(done) {
+      Post.destroyAll(done);
+    });
+
+    context('with regex strings', function() {
+      context('using no flags', function() {
+        it('should work', function(done) {
+          Post.find({where: {content: {regexp: '^A'}}}, function(err, posts) {
+            should.not.exist(err);
+            posts.length.should.equal(1);
+            posts[0].content.should.equal('AAA');
+            done();
+          });
+        });
+      });
+
+      context('using flags', function() {
+        beforeEach(function addSpy() {
+          sinon.stub(console, 'warn');
+        });
+        afterEach(function removeSpy()  {
+          console.warn.restore();
+        });
+
+        it('should work', function(done) {
+          Post.find({where: {content: {regexp: '^a/i'}}}, function(err, posts) {
+            should.not.exist(err);
+            posts.length.should.equal(1);
+            posts[0].content.should.equal('AAA');
+            done();
+          });
+        });
+
+        it('should print a warning when the ignore flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: '^a/i'}}}, function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
+
+        it('should print a warning when the global flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: '^a/g'}}}, function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
+
+        it('should print a warning when the multiline flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: '^a/m'}}}, function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
+      });
+    });
+
+    context('with regex literals', function() {
+      context('using no flags', function() {
+        it('should work', function(done) {
+          Post.find({where: {content: {regexp: /^A/}}}, function(err, posts) {
+            should.not.exist(err);
+            posts.length.should.equal(1);
+            posts[0].content.should.equal('AAA');
+            done();
+          });
+        });
+      });
+
+      context('using flags', function() {
+        beforeEach(function addSpy() {
+          sinon.stub(console, 'warn');
+        });
+        afterEach(function removeSpy()  {
+          console.warn.restore();
+        });
+
+        it('should work', function(done) {
+          Post.find({where: {content: {regexp: /^a/i}}}, function(err, posts) {
+            should.not.exist(err);
+            posts.length.should.equal(1);
+            posts[0].content.should.equal('AAA');
+            done();
+          });
+        });
+
+        it('should print a warning when the ignore flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: /^a/i}}}, function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
+
+        it('should print a warning when the global flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: /^a/g}}}, function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
+
+        it('should print a warning when the multiline flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: /^a/m}}}, function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
+      });
+    });
+
+    context('with regex objects', function() {
+      beforeEach(function addSpy() {
+        sinon.stub(console, 'warn');
+      });
+      afterEach(function removeSpy()  {
+        console.warn.restore();
+      });
+
+      context('using no flags', function() {
+        it('should work', function(done) {
+          Post.find({where: {content: {regexp: new RegExp(/^A/)}}},
+              function(err, posts) {
+            should.not.exist(err);
+            posts.length.should.equal(1);
+            posts[0].content.should.equal('AAA');
+            done();
+          });
+        });
+      });
+
+      context('using flags', function() {
+        it('should work', function(done) {
+          Post.find({where: {content: {regexp: new RegExp(/^a/i)}}},
+              function(err, posts) {
+            should.not.exist(err);
+            posts.length.should.equal(1);
+            posts[0].content.should.equal('AAA');
+            done();
+          });
+        });
+        it('should print a warning when the ignore flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: new RegExp(/^a/i)}}},
+              function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
+
+        it('should print a warning when the global flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: new RegExp(/^a/g)}}},
+              function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
+
+        it('should print a warning when the multiline flag is set',
+            function(done) {
+          Post.find({where: {content: {regexp: new RegExp(/^a/m)}}},
+              function(err, posts) {
+            console.warn.calledOnce.should.be.ok;
+            done();
+          });
+        });
       });
     });
   });

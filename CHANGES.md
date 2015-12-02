@@ -1,3 +1,73 @@
+2015-07-30, Version 2.2.0
+=========================
+
+ * Clean up regexop tests (Simon Ho)
+
+ * Add regexp operator tests (Simon Ho)
+
+ * Fix RegExp unit test setup/teardown (Simon Ho)
+
+ * Add support for RegExp operator (Simon Ho)
+
+
+2015-05-29, Version 2.1.1
+=========================
+
+ * Fix the failing tests (Raymond Feng)
+
+
+2015-05-18, Version 2.1.0
+=========================
+
+ * Update deps (Raymond Feng)
+
+ * Start to add transaction support (Raymond Feng)
+
+
+2015-05-14, Version 2.0.1
+=========================
+
+ * Fix the typo (Raymond Feng)
+
+
+2015-05-13, Version 2.0.0
+=========================
+
+ * Update deps (Raymond Feng)
+
+ * Refactor the code to use base SqlConnector (Raymond Feng)
+
+
+2015-04-02, Version 1.7.0
+=========================
+
+ * Return isNewInstance from upsert (Raymond Feng)
+
+ * Update rc dep (Raymond Feng)
+
+ * Return count when updating or deleting models (Simon Ho)
+
+ * Update README.md (Simon Ho)
+
+ * Add test running instructions to readme (Simon Ho)
+
+ * Fix mysql neq for NULL value. (ulion)
+
+ * replace dataLength instead of adding length property (Partap Davis)
+
+ * Allow models backed by MySQL to reference mongodb ObjectID (Raymond Feng)
+
+ * Query string length for schema in characters in addition to bytes (Partap Davis)
+
+
+2015-02-20, Version 1.6.0
+=========================
+
+ * Update deps (Raymond Feng)
+
+ * Include tests of persistence hooks from juggler. (Miroslav Bajtoš)
+
+
 2015-01-15, Version 1.5.1
 =========================
 
