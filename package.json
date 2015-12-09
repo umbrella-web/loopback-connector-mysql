@@ -9,7 +9,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "debug": "^2.1.1",
-    "loopback-connector": "^2.1.0",
+    "loopback-connector": "git+https://github.com/umbrella-web/loopback-connector.git#develop",
     "mysql": "^2.5.4"
   },
   "devDependencies": {
